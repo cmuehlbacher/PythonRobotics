@@ -9,6 +9,8 @@ import math
 
 show_animation = True
 
+verification_calls = 0
+verification_set = set()
 
 class Node:
 
@@ -71,6 +73,7 @@ def a_star_planning(sx, sy, gx, gy, ox, oy, reso, rr):
 
         if current.x == ngoal.x and current.y == ngoal.y:
             print("Find goal")
+            print("It took {} verification calls with {} different points".format(verification_calls, len(verification_set)))
             ngoal.pind = current.pind
             ngoal.cost = current.cost
             break
@@ -111,6 +114,11 @@ def calc_h(ngoal, x, y):
 
 
 def verify_node(node, obmap, minx, miny, maxx, maxy):
+    global verification_calls
+    verification_calls += 1
+
+    global verification_set
+    verification_set.add((node.x, node.y))
 
     if node.x < minx:
         return False
@@ -121,7 +129,7 @@ def verify_node(node, obmap, minx, miny, maxx, maxy):
     elif node.y >= maxy:
         return False
 
-    if obmap[node.x][node.y]:
+    if obmap[int(node.x)][int(node.y)]:
         return False
 
     return True
@@ -138,13 +146,13 @@ def calc_obstacle_map(ox, oy, reso, vr):
     #  print("maxx:", maxx)
     #  print("maxy:", maxy)
 
-    xwidth = round(maxx - minx)
-    ywidth = round(maxy - miny)
+    xwidth = int(round(maxx - minx))
+    ywidth = int(round(maxy - miny))
     #  print("xwidth:", xwidth)
     #  print("ywidth:", ywidth)
 
     # obstacle map generation
-    obmap = [[False for i in range(xwidth)] for i in range(ywidth)]
+    obmap = [[False for i in range(ywidth)] for i in range(xwidth)]
     for ix in range(xwidth):
         x = ix + minx
         for iy in range(ywidth):
@@ -181,33 +189,36 @@ def main():
     print(__file__ + " start!!")
 
     # start and goal position
-    sx = 10.0  # [m]
+    sx = 20.0  # [m]
     sy = 10.0  # [m]
-    gx = 50.0  # [m]
-    gy = 50.0  # [m]
+    gx = 20.0  # [m]
+    gy = 100.0  # [m]
     grid_size = 1.0  # [m]
     robot_size = 1.0  # [m]
 
     ox, oy = [], []
 
-    for i in range(60):
+    for i in range(40):
         ox.append(i)
         oy.append(0.0)
-    for i in range(60):
-        ox.append(60.0)
+    for i in range(110):
+        ox.append(40.0)
         oy.append(i)
-    for i in range(61):
+    for i in range(41):
         ox.append(i)
-        oy.append(60.0)
-    for i in range(61):
+        oy.append(110.0)
+    for i in range(111):
         ox.append(0.0)
         oy.append(i)
-    for i in range(40):
-        ox.append(20.0)
+    for i in range(10, 90):
+        ox.append(10.0)
         oy.append(i)
-    for i in range(40):
-        ox.append(40.0)
-        oy.append(60.0 - i)
+    for i in range(10, 90):
+        ox.append(30.0)
+        oy.append(i)
+    for i in range(10, 30):
+        ox.append(i)
+        oy.append(90.0)
 
     if show_animation:
         plt.plot(ox, oy, ".k")
